@@ -1,6 +1,8 @@
 import 'package:chatapp/conroller/home_conroller.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
@@ -64,18 +66,11 @@ class _HomepageState extends State<Homepage> {
           Chat(),
           Update(),
           Call(),
-          Container(),
+          Communiter(),
         ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Get.toNamed("Userspage");
-        },
-        child: Icon(Icons.add),
       ),
     );
   }
-
 }
 
 class Chat extends StatefulWidget {
@@ -89,19 +84,46 @@ class _ChatState extends State<Chat> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: ListView.builder(
-          itemCount: 10,
-          itemBuilder: (context, index) {
-            return ListTile(
-              leading: CircleAvatar(),
-              title: Text("Hello"),
-              trailing: Icon(Icons.message),
-            );
-          }),
+      body: Stack(
+        children: [
+          StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+              stream: FirebaseFirestore.instance.collection("chat").snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  List<QueryDocumentSnapshot<Map<String, dynamic>>> chatRoom =
+                      snapshot.data?.docs ?? [];
+                  return ListView.builder(
+                    itemCount: chatRoom.length,
+                    itemBuilder: (context, index) {
+                      Map<String, dynamic> room = chatRoom[index].data();
+                      return ListTile(
+                        title: Text("${room["user_b_email"]}"),
+                        subtitle: Text("${room["last_msg"]}"),
+                        trailing: ((int.tryParse("${room["unread"]}") ?? 0) > 0)
+                            ? CircleAvatar(
+                                child: Text("${room["unread"]}"),
+                              )
+                            : null,
+                      );
+                    },
+                  );
+                } else {
+                  return CircularProgressIndicator();
+                }
+              }),
+          Align(
+            alignment: Alignment.bottomRight,
+            child: FloatingActionButton(
+              onPressed: () {
+                Get.toNamed("Userspage");
+              },
+              child: Icon(Icons.add),
+            ),
+          )
+        ],
+      ),
     );
   }
-
-
 }
 
 class Update extends StatefulWidget {
@@ -144,11 +166,8 @@ class _CommuniterState extends State<Communiter> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Column(
-        children: [
-
-        ],
+        children: [],
       ),
     );
   }
 }
-

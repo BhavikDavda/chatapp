@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:typed_data';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -27,6 +28,9 @@ class ChatController extends GetxController {
   void onInit() {
     super.onInit();
     arg = Get.arguments;
+    FirebaseFirestore.instance.collection("chat").doc(arg["chatRoomId"]).update({
+      "unread": 0,
+    });
   }
 
 

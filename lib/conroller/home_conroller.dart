@@ -11,6 +11,7 @@ class Homeconroller extends GetxController{
   late AppLifecycleListener appLifecycleListener;
 
   RxInt menuindex = 0.obs;
+  late Map<String, dynamic>arg;
 
 
   void setmenuind(int index){
@@ -21,7 +22,6 @@ class Homeconroller extends GetxController{
   }
   @override
   void onInit() {
-
     super.onInit();
     appLifecycleListener = AppLifecycleListener(
         onStateChange: (value) {
